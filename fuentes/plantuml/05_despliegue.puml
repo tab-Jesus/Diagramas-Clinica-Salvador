@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam dpi 160
+skinparam roundcorner 8
+skinparam ArrowFontSize 11
+skinparam backgroundColor white
+
+node "Equipo de recepción\n(Windows 11)" as PC {
+  artifact "Navegador web\n(Chrome / Edge)" as BR
+}
+
+node "Servidor web / proxy inverso\n(Linux + Nginx)" as WS {
+  artifact "SPA estática\n(build de React)" as SPA
+  artifact "Certificado TLS" as TLS
+}
+
+node "Servidor de aplicación\n(Linux + Docker)" as AS {
+  artifact "citas-api.jar\n(Spring Boot)" as JAR
+}
+
+node "Servidor de base de datos\n(Linux)" as DBS {
+  database "PostgreSQL" as PG
+}
+
+node "Almacenamiento de respaldos" as BK {
+  artifact "Copias automáticas\n(diarias)" as BAK
+}
+
+cloud "Proveedor de\nSMS / correo" as EXT
+
+BR --> WS : HTTPS (443)
+WS --> AS : HTTP interno (8080)
+AS --> DBS : JDBC (5432)
+DBS --> BK : respaldo programado
+AS --> EXT : HTTPS (API)
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam dpi 160
+skinparam roundcorner 8
+skinparam ArrowFontSize 11
+skinparam backgroundColor white
+skinparam ActivityDiamondFontSize 11
+skinparam swimlaneWidth 260
+
+|Recepcionista|
+start
+:Iniciar sesión en el sistema;
+:Ingresar documento del paciente;
+
+|Sistema|
+:Buscar paciente por documento;
+if (¿Paciente registrado?) then (no)
+  |Recepcionista|
+  :Diligenciar datos del nuevo paciente;
+  |Sistema|
+  :Validar y guardar paciente;
+else (sí)
+endif
+
+repeat
+  |Recepcionista|
+  :Seleccionar especialidad y fecha;
+  |Sistema|
+  :Consultar médicos y horarios libres;
+  |Recepcionista|
+  :Elegir médico y horario;
+  |Sistema|
+  :Validar disponibilidad\n(bloqueo transaccional);
+repeat while (¿Horario ocupado o\nregla de negocio incumplida?) is (sí) not (no)
+
+|Sistema|
+:Registrar cita (estado Programada);
+:Generar código único de cita;
+fork
+  :Enviar confirmación al paciente;
+fork again
+  :Registrar auditoría de la operación;
+end fork
+
+|Recepcionista|
+:Entregar comprobante al paciente;
+stop
+@enduml

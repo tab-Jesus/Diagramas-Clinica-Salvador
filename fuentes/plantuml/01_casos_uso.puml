@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam dpi 160
+skinparam roundcorner 8
+skinparam ArrowFontSize 11
+skinparam backgroundColor white
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecaseFontSize 12
+
+actor "Recepcionista" as R
+actor "Paciente" as P
+actor "Médico" as M
+actor "Servicio de\nnotificaciones" as N <<sistema externo>>
+
+rectangle "Sistema de Gestión de Citas — Clínica Salvador" {
+  usecase "CU-01\nRegistrar nueva cita" as UC1
+  usecase "CU-02\nIniciar sesión" as UC2
+  usecase "CU-03\nBuscar paciente" as UC3
+  usecase "CU-04\nRegistrar nuevo paciente" as UC4
+  usecase "CU-05\nConsultar médicos\ndisponibles" as UC5
+  usecase "CU-06\nConsultar horarios\ndisponibles" as UC6
+  usecase "CU-07\nValidar disponibilidad\ndel horario" as UC7
+  usecase "CU-08\nEnviar confirmación\nal paciente" as UC8
+  usecase "CU-09\nImprimir comprobante\nde la cita" as UC9
+}
+
+R --> UC1
+P -- UC1
+M -- UC6
+N -- UC8
+
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC3 : <<include>>
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC7 : <<include>>
+UC4 ..> UC3 : <<extend>>
+UC8 ..> UC1 : <<extend>>
+UC9 ..> UC1 : <<extend>>
+@enduml

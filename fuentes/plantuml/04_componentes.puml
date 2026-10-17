@@ -1,0 +1,44 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam dpi 160
+skinparam roundcorner 8
+skinparam ArrowFontSize 11
+skinparam backgroundColor white
+skinparam componentStyle uml2
+
+package "Cliente" {
+  [Aplicación web SPA\n(React + TypeScript)] as WEB
+}
+
+package "Servidor de aplicación — Backend (monolito modular)" {
+  [API REST\n(Controladores)] as API
+  [Seguridad\n(autenticación y roles)] as SEC
+  [Gestión de\nPacientes] as PAC
+  [Gestión de Médicos\ny Agenda] as AGE
+  [Gestión de\nCitas] as CIT
+  [Notificaciones] as NOT
+  [Auditoría] as AUD
+  [Acceso a datos\n(Repositorios JPA)] as REP
+}
+
+database "PostgreSQL" as DB
+cloud "Proveedor de\nSMS / correo" as EXT
+
+WEB --> API : HTTPS / JSON
+API ..> SEC : <<use>>
+API --> PAC
+API --> AGE
+API --> CIT
+CIT ..> PAC : <<use>>
+CIT ..> AGE : <<use>>
+CIT --> NOT
+CIT --> AUD
+PAC --> REP
+AGE --> REP
+CIT --> REP
+AUD --> REP
+REP --> DB : JDBC
+NOT --> EXT : HTTPS
+@enduml

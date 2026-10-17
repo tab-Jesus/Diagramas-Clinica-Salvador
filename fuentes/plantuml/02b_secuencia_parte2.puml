@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam dpi 170
+skinparam roundcorner 8
+skinparam ArrowFontSize 11
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+autonumber 23 "<b>00"
+
+actor "Recepcionista" as R
+participant "Interfaz web\n(React)" as UI
+participant "API REST" as API
+participant "Cita\nService" as CS
+participant "Agenda\nService" as AS
+database "PostgreSQL" as DB
+participant "Notificaciones\n(externo)" as NT
+
+== Registro de la cita ==
+UI -> API : POST /api/citas
+API -> CS : registrarCita()
+CS -> DB : BEGIN + SELECT FOR UPDATE
+CS -> AS : validarDisponibilidad()
+AS --> CS : resultado de la validación
+alt Horario libre y reglas de negocio cumplidas
+  CS -> DB : INSERT cita (estado = Programada)
+  CS -> DB : COMMIT
+  CS --> API : cita registrada (código)
+  API ->> NT : enviarConfirmacion() [async]
+  API --> UI : 201 Created (código)
+  UI --> R : Muestra confirmación y comprobante
+else Horario ocupado o regla incumplida
+  CS -> DB : ROLLBACK
+  CS --> API : conflicto
+  API --> UI : 409 Conflict
+  UI --> R : Informa conflicto y propone otros horarios
+end
+@enduml

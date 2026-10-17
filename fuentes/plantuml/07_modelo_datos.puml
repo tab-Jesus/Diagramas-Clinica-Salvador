@@ -1,0 +1,75 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam dpi 160
+skinparam roundcorner 8
+skinparam ArrowFontSize 11
+skinparam backgroundColor white
+hide circle
+skinparam linetype ortho
+
+entity "Paciente" as pac {
+  * id : bigint <<PK>>
+  --
+  * tipo_documento : varchar
+  * numero_documento : varchar <<UQ>>
+  * nombres : varchar
+  * apellidos : varchar
+  fecha_nacimiento : date
+  telefono : varchar
+  correo : varchar
+}
+
+entity "Especialidad" as esp {
+  * id : bigint <<PK>>
+  --
+  * nombre : varchar
+}
+
+entity "Medico" as med {
+  * id : bigint <<PK>>
+  --
+  * nombres : varchar
+  * apellidos : varchar
+  * registro_profesional : varchar <<UQ>>
+  * especialidad_id : bigint <<FK>>
+  * activo : boolean
+}
+
+entity "HorarioMedico" as hor {
+  * id : bigint <<PK>>
+  --
+  * medico_id : bigint <<FK>>
+  * dia_semana : smallint
+  * hora_inicio : time
+  * hora_fin : time
+}
+
+entity "Cita" as cit {
+  * id : bigint <<PK>>
+  --
+  * codigo : varchar <<UQ>>
+  * paciente_id : bigint <<FK>>
+  * medico_id : bigint <<FK>>
+  * fecha_hora : timestamp
+  * estado : varchar
+  * usuario_registra_id : bigint <<FK>>
+  * creada_en : timestamp
+}
+
+entity "Usuario" as usu {
+  * id : bigint <<PK>>
+  --
+  * nombre_usuario : varchar <<UQ>>
+  * clave_hash : varchar
+  * rol : varchar
+  * activo : boolean
+}
+
+esp ||--o{ med
+med ||--o{ hor
+pac ||--o{ cit
+med ||--o{ cit
+usu ||--o{ cit
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam dpi 170
+skinparam roundcorner 8
+skinparam ArrowFontSize 11
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+autonumber "<b>00"
+
+actor "Recepcionista" as R
+participant "Interfaz web\n(React)" as UI
+participant "API REST" as API
+participant "Paciente\nService" as PS
+participant "Agenda\nService" as AS
+database "PostgreSQL" as DB
+
+== Identificación del paciente ==
+R -> UI : Ingresa documento del paciente
+UI -> API : GET /api/pacientes
+API -> PS : buscarPorDocumento()
+PS -> DB : SELECT paciente
+DB --> PS : resultado
+alt Paciente no registrado
+  API --> UI : 404 No encontrado
+  UI --> R : Muestra formulario de registro
+  R -> UI : Diligencia datos del paciente
+  UI -> API : POST /api/pacientes
+  API -> PS : crearPaciente()
+  PS -> DB : INSERT paciente
+end
+API --> UI : 200 Datos del paciente
+UI --> R : Muestra paciente seleccionado
+
+== Selección de médico y horario ==
+R -> UI : Elige especialidad y fecha
+UI -> API : GET /api/medicos/disponibles
+API -> AS : consultarDisponibilidad()
+AS -> DB : SELECT franjas libres
+DB --> AS : franjas disponibles
+AS --> API : médicos y horarios libres
+API --> UI : 200 Médicos y horarios
+UI --> R : Muestra disponibilidad
+R -> UI : Elige médico y horario, y confirma
+@enduml
